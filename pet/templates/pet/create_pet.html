@@ -1,0 +1,181 @@
+{% extends 'pet/base.html' %}
+{% load static %}
+
+{% block title %}Adopt a Virtual Pet{% endblock %}
+
+{% block content %}
+<div class="create-pet-container">
+    <div class="create-card glass-panel" id="create-pet-card">
+        <div class="create-card-header">
+            <span class="header-badge">🌟 Virtual Adoption Center</span>
+            <h1 class="page-title">Create Your Virtual Pet Companion</h1>
+            <p class="page-subtitle">Customize your pet's appearance, personality, and identity. Your AI pet will develop moods and reactions based on your care!</p>
+        </div>
+
+        <div class="create-layout-grid">
+            <!-- Left: Interactive Form -->
+            <form action="{% url 'create_pet' %}" method="POST" class="pet-creation-form" id="create-pet-form">
+                {% csrf_token %}
+
+                <!-- Pet Name -->
+                <div class="form-group">
+                    <label for="pet-name-input" class="form-label">
+                        <span class="label-icon">🏷️</span> Pet Name
+                    </label>
+                    {{ form.name }}
+                    <span class="form-hint">Choose a cute name for your companion (e.g. Coco, Bella, Mochi)</span>
+                    {% if form.name.errors %}
+                        <div class="field-error">{{ form.name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Animal Type Picker -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">🐾</span> Animal Companion Type
+                    </label>
+                    <div class="custom-radio-grid" id="pet-type-selector">
+                        <label class="radio-card selected" data-type="Cat" data-emoji="🐱">
+                            <input type="radio" name="pet_type" value="Cat" checked>
+                            <span class="radio-emoji">🐱</span>
+                            <span class="radio-name">Cat</span>
+                            <span class="radio-desc">Independent & Purring</span>
+                        </label>
+                        <label class="radio-card" data-type="Dog" data-emoji="🐶">
+                            <input type="radio" name="pet_type" value="Dog">
+                            <span class="radio-emoji">🐶</span>
+                            <span class="radio-name">Dog</span>
+                            <span class="radio-desc">Loyal & Enthusiastic</span>
+                        </label>
+                        <label class="radio-card" data-type="Rabbit" data-emoji="🐰">
+                            <input type="radio" name="pet_type" value="Rabbit">
+                            <span class="radio-emoji">🐰</span>
+                            <span class="radio-name">Rabbit</span>
+                            <span class="radio-desc">Gentle & Hopper</span>
+                        </label>
+                        <label class="radio-card" data-type="Panda" data-emoji="🐼">
+                            <input type="radio" name="pet_type" value="Panda">
+                            <span class="radio-emoji">🐼</span>
+                            <span class="radio-name">Panda</span>
+                            <span class="radio-desc">Cuddly & Bamboo Lover</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Personality Selection -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">🧠</span> Core Personality
+                    </label>
+                    <div class="custom-radio-grid personality-grid" id="personality-selector">
+                        <label class="radio-card personality-card selected" data-personality="Friendly">
+                            <input type="radio" name="personality" value="Friendly" checked>
+                            <span class="radio-emoji">😊</span>
+                            <span class="radio-name">Friendly</span>
+                            <span class="radio-desc">Warm, loving, and always happy to see you</span>
+                        </label>
+                        <label class="radio-card personality-card" data-personality="Playful">
+                            <input type="radio" name="personality" value="Playful">
+                            <span class="radio-emoji">🎾</span>
+                            <span class="radio-name">Playful</span>
+                            <span class="radio-desc">Full of energy, loves games and fun challenges</span>
+                        </label>
+                        <label class="radio-card personality-card" data-personality="Shy">
+                            <input type="radio" name="personality" value="Shy">
+                            <span class="radio-emoji">🙈</span>
+                            <span class="radio-name">Shy</span>
+                            <span class="radio-desc">Timid and gentle; warms up with patient affection</span>
+                        </label>
+                        <label class="radio-card personality-card" data-personality="Curious">
+                            <input type="radio" name="personality" value="Curious">
+                            <span class="radio-emoji">🔍</span>
+                            <span class="radio-name">Curious</span>
+                            <span class="radio-desc">Inquisitive explorer fascinated by everything</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-submit-adoption" id="btn-create-pet">
+                    <span class="btn-icon">✨</span> Adopt My Virtual Pet Now!
+                </button>
+            </form>
+
+            <!-- Right: Real-time Live Preview Card -->
+            <div class="live-preview-box">
+                <span class="preview-badge">Live Companion Preview</span>
+                <div class="preview-avatar-circle" id="preview-avatar">🐱</div>
+                <h2 class="preview-name" id="preview-name">Coco</h2>
+                <div class="preview-tags">
+                    <span class="preview-tag tag-type" id="preview-type">Cat</span>
+                    <span class="preview-tag tag-personality" id="preview-personality">Friendly 😊</span>
+                </div>
+                <div class="preview-stats-mock">
+                    <div class="mock-stat-row">
+                        <span>🍖 Hunger (Starting)</span>
+                        <span class="mock-stat-val">30% (Satisfied)</span>
+                    </div>
+                    <div class="mock-stat-row">
+                        <span>❤️ Happiness (Starting)</span>
+                        <span class="mock-stat-val">80% (Happy)</span>
+                    </div>
+                    <div class="mock-stat-row">
+                        <span>⚡ Energy (Starting)</span>
+                        <span class="mock-stat-val">80% (Energetic)</span>
+                    </div>
+                </div>
+                <p class="preview-tagline">"Ready to explore, eat delicious meals, and share conversations with you!"</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const nameInput = document.getElementById('pet-name-input');
+    const previewName = document.getElementById('preview-name');
+    const previewAvatar = document.getElementById('preview-avatar');
+    const previewType = document.getElementById('preview-type');
+    const previewPersonality = document.getElementById('preview-personality');
+
+    // Sync pet name
+    if (nameInput) {
+        nameInput.addEventListener('input', () => {
+            previewName.textContent = nameInput.value.trim() || 'Coco';
+        });
+    }
+
+    // Type selector radio cards
+    const typeCards = document.querySelectorAll('#pet-type-selector .radio-card');
+    typeCards.forEach(card => {
+        card.addEventListener('click', () => {
+            typeCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+
+            const type = card.dataset.type;
+            const emoji = card.dataset.emoji;
+            if (previewAvatar) previewAvatar.textContent = emoji;
+            if (previewType) previewType.textContent = type;
+        });
+    });
+
+    // Personality selector radio cards
+    const personalityCards = document.querySelectorAll('#personality-selector .radio-card');
+    personalityCards.forEach(card => {
+        card.addEventListener('click', () => {
+            personalityCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+
+            const personality = card.dataset.personality;
+            if (previewPersonality) previewPersonality.textContent = `${personality} ✨`;
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'pet/base.html' %}
+{% load static %}
+
+{% block title %}Pet Sanctuary & Management{% endblock %}
+
+{% block content %}
+<div class="sanctuary-container">
+    <div class="sanctuary-header-card glass-panel">
+        <div class="sanctuary-title-group">
+            <span class="header-badge">🏡 Virtual Sanctuary</span>
+            <h1 class="page-title">Your Virtual Pet Family</h1>
+            <p class="page-subtitle">Manage, switch, or adopt additional companions for your AI pet ecosystem.</p>
+        </div>
+        <a href="{% url 'create_pet' %}" class="btn btn-adopt-new" id="btn-adopt-new-top">
+            <span>✨</span> Adopt Another Pet
+        </a>
+    </div>
+
+    <div class="pets-grid">
+        {% for p in pets %}
+            <div class="pet-card glass-panel {% if active_pet and active_pet.id == p.id %}active-pet-card{% endif %}" id="pet-card-{{ p.id }}">
+                {% if active_pet and active_pet.id == p.id %}
+                    <div class="active-badge">⭐ Currently Active</div>
+                {% endif %}
+
+                <div class="pet-card-avatar">{{ p.pet_emoji }}</div>
+                <h2 class="pet-card-name">{{ p.name }}</h2>
+
+                <div class="pet-card-tags">
+                    <span class="pet-type-chip">{{ p.pet_type }}</span>
+                    <span class="personality-tag">{{ p.personality }}</span>
+                </div>
+
+                <div class="pet-card-mood {{ p.mood_badge_class }}">
+                    {{ p.mood_emoji }} {{ p.mood }}
+                </div>
+
+                <div class="pet-card-metrics">
+                    <div class="metric-mini">
+                        <span class="metric-label">🍖 Hunger</span>
+                        <span class="metric-val">{{ p.hunger }}%</span>
+                    </div>
+                    <div class="metric-mini">
+                        <span class="metric-label">❤️ Happiness</span>
+                        <span class="metric-val">{{ p.happiness }}%</span>
+                    </div>
+                    <div class="metric-mini">
+                        <span class="metric-label">⚡ Energy</span>
+                        <span class="metric-val">{{ p.energy }}%</span>
+                    </div>
+                </div>
+
+                <div class="pet-card-actions">
+                    <a href="{% url 'switch_pet' p.id %}" class="btn btn-switch-pet" id="btn-switch-{{ p.id }}">
+                        Select as Active Pet
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state glass-panel">
+                <span class="empty-emoji">🐣</span>
+                <h2>No Pets Adopted Yet!</h2>
+                <p>Begin by creating and adopting your very first virtual companion.</p>
+                <a href="{% url 'create_pet' %}" class="btn btn-submit-adoption">Adopt Your First Pet</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

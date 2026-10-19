@@ -1,0 +1,246 @@
+{% extends 'pet/base.html' %}
+{% load static %}
+
+{% block title %}{{ pet.name }}'s Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <!-- Left Column: Pet Showcase & Interactive Stage -->
+    <div class="pet-stage-card glass-panel" id="pet-stage-container">
+        <div class="pet-header-row">
+            <div class="pet-title-box">
+                <span class="pet-type-chip">{{ pet.pet_type }}</span>
+                <h1 class="pet-display-name" id="pet-name-display">{{ pet.name }}</h1>
+                <span class="personality-tag">
+                    <span class="personality-sparkle">✨</span> {{ pet.personality }} Personality
+                </span>
+            </div>
+
+            <!-- Dynamic Mood Badge -->
+            <div class="mood-showcase-badge {{ pet.mood_badge_class }}" id="pet-mood-badge">
+                <span class="mood-icon" id="pet-mood-emoji">{{ pet.mood_emoji }}</span>
+                <div class="mood-text-group">
+                    <span class="mood-title" id="pet-mood-title">{{ pet.mood }}</span>
+                    <span class="mood-status-label">Current Mood</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Animated Pet Mascot Stage -->
+        <div class="pet-avatar-stage">
+            <div class="stage-glow-ring" id="pet-glow-ring"></div>
+            <div class="pet-mascot-wrapper" id="pet-mascot">
+                <div class="pet-mascot-emoji" id="pet-mascot-emoji">{{ pet.pet_emoji }}</div>
+                <div class="pet-shadow"></div>
+            </div>
+            <!-- Speech Thought Bubble -->
+            <div class="pet-thought-bubble" id="pet-thought-bubble">
+                <p id="pet-thought-text">{{ pet.mood_description }}</p>
+            </div>
+        </div>
+
+        <!-- Real-Time Physical & Emotional Metrics -->
+        <div class="stats-panel" id="stats-panel">
+            <h2 class="stats-section-title">Vitals & Emotional State</h2>
+
+            <!-- Hunger Metric -->
+            <div class="stat-card" id="stat-hunger-card">
+                <div class="stat-header">
+                    <span class="stat-name"><span class="stat-icon">🍖</span> Hunger Level</span>
+                    <span class="stat-value" id="hunger-val">{{ pet.hunger }}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill fill-hunger" id="hunger-bar" style="width: {{ pet.hunger }}%;"></div>
+                </div>
+                <span class="stat-subtext" id="hunger-subtext">
+                    {% if pet.hunger >= 75 %}Critical: Starving! Needs food immediately!
+                    {% elif pet.hunger >= 50 %}Getting hungry! A treat would be nice.
+                    {% elif pet.hunger >= 20 %}Comfortably fed.
+                    {% else %}Completely full and satisfied!{% endif %}
+                </span>
+            </div>
+
+            <!-- Happiness Metric -->
+            <div class="stat-card" id="stat-happiness-card">
+                <div class="stat-header">
+                    <span class="stat-name"><span class="stat-icon">❤️</span> Happiness</span>
+                    <span class="stat-value" id="happiness-val">{{ pet.happiness }}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill fill-happiness" id="happiness-bar" style="width: {{ pet.happiness }}%;"></div>
+                </div>
+                <span class="stat-subtext" id="happiness-subtext">
+                    {% if pet.happiness >= 80 %}Overjoyed & deeply bonded with you!
+                    {% elif pet.happiness >= 50 %}Happy & content.
+                    {% elif pet.happiness >= 25 %}A bit lonely, play with me!
+                    {% else %}Sad and neglected. Needs affection!{% endif %}
+                </span>
+            </div>
+
+            <!-- Energy Metric -->
+            <div class="stat-card" id="stat-energy-card">
+                <div class="stat-header">
+                    <span class="stat-name"><span class="stat-icon">⚡</span> Energy Level</span>
+                    <span class="stat-value" id="energy-val">{{ pet.energy }}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill fill-energy" id="energy-bar" style="width: {{ pet.energy }}%;"></div>
+                </div>
+                <span class="stat-subtext" id="energy-subtext">
+                    {% if pet.energy >= 75 %}Brimming with high energy!
+                    {% elif pet.energy >= 40 %}Ready for playtime.
+                    {% elif pet.energy >= 20 %}Growing tired...
+                    {% else %}Exhausted! Needs a nap to recharge!{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Quick Interaction Buttons (POST Requests) -->
+        <div class="pet-actions-toolbar">
+            <h2 class="stats-section-title">Quick Actions</h2>
+            <div class="action-buttons-grid">
+                <!-- Feed Form -->
+                <form action="{% url 'feed_pet' pet.id %}" method="POST" class="action-form" data-action="FEED">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-action btn-feed" id="btn-action-feed">
+                        <span class="btn-icon">🍲</span>
+                        <div class="btn-text-col">
+                            <span class="btn-main-text">Feed Pet</span>
+                            <span class="btn-hint">-25 Hunger, +10 Happy</span>
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Play Form -->
+                <form action="{% url 'play_pet' pet.id %}" method="POST" class="action-form" data-action="PLAY">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-action btn-play" id="btn-action-play">
+                        <span class="btn-icon">🎾</span>
+                        <div class="btn-text-col">
+                            <span class="btn-main-text">Play Game</span>
+                            <span class="btn-hint">+20 Happy, -15 Energy</span>
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Rest Form -->
+                <form action="{% url 'rest_pet' pet.id %}" method="POST" class="action-form" data-action="REST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-action btn-rest" id="btn-action-rest">
+                        <span class="btn-icon">💤</span>
+                        <div class="btn-text-col">
+                            <span class="btn-main-text">Take a Nap</span>
+                            <span class="btn-hint">+35 Energy, +5 Hunger</span>
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Chat Shortcut -->
+                <a href="{% url 'chat' %}" class="btn btn-action btn-chat" id="btn-action-chat">
+                    <span class="btn-icon">🤖</span>
+                    <div class="btn-text-col">
+                        <span class="btn-main-text">AI Chat Room</span>
+                        <span class="btn-hint">Full conversational studio</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Interactive Chat & Activity Timeline -->
+    <div class="dashboard-side-column">
+        <!-- Quick Chat Widget -->
+        <div class="chat-widget-card glass-panel" id="dashboard-chat-widget">
+            <div class="widget-header">
+                <div class="widget-title-group">
+                    <span class="widget-icon">💬</span>
+                    <h2 class="widget-title">Talk to {{ pet.name }}</h2>
+                </div>
+                <a href="{% url 'chat' %}" class="pill-link">Open Full Chat &rarr;</a>
+            </div>
+
+            <!-- Quick Mini Chat Input Form -->
+            <form action="{% url 'chat' %}" method="POST" class="quick-chat-form" id="quick-chat-form">
+                {% csrf_token %}
+                <div class="quick-input-group">
+                    <input type="text" name="message" class="quick-input" id="quick-chat-input"
+                           placeholder="Say something to {{ pet.name }} (e.g., 'Hello!', 'Are you hungry?')" required autocomplete="off">
+                    <button type="submit" class="quick-send-btn" id="quick-chat-send-btn">
+                        <span>Send</span> 🚀
+                    </button>
+                </div>
+            </form>
+
+            <!-- Quick Prompt Suggestions -->
+            <div class="quick-prompts-bar">
+                <span class="prompt-chip" onclick="fillQuickChat('Hello! How are you feeling today?')">👋 "Hello!"</span>
+                <span class="prompt-chip" onclick="fillQuickChat('Are you hungry?')">🍖 "Are you hungry?"</span>
+                <span class="prompt-chip" onclick="fillQuickChat('Do you want to play a game?')">🎾 "Wanna play?"</span>
+                <span class="prompt-chip" onclick="fillQuickChat('Tell me a funny joke!')">😄 "Tell a joke"</span>
+            </div>
+        </div>
+
+        <!-- Recent Interactions History -->
+        <div class="history-card glass-panel" id="interaction-history-card">
+            <div class="widget-header">
+                <div class="widget-title-group">
+                    <span class="widget-icon">📜</span>
+                    <h2 class="widget-title">Interaction Timeline</h2>
+                </div>
+                <span class="history-counter">{{ recent_interactions.count }} logged</span>
+            </div>
+
+            <div class="timeline-container" id="timeline-list">
+                {% if recent_interactions %}
+                    {% for item in recent_interactions %}
+                        <div class="timeline-entry type-{{ item.interaction_type|lower }}">
+                            <div class="timeline-marker">
+                                {% if item.interaction_type == 'FEED' %}🍲
+                                {% elif item.interaction_type == 'PLAY' %}🎾
+                                {% elif item.interaction_type == 'REST' %}💤
+                                {% else %}💬{% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-meta">
+                                    <span class="timeline-type-tag">{{ item.get_interaction_type_display }}</span>
+                                    <span class="timeline-time">{{ item.created_at|date:"M d, H:i" }}</span>
+                                    {% if item.is_ai_generated %}
+                                        <span class="badge-ai">✨ Generative AI</span>
+                                    {% elif item.interaction_type == 'CHAT' %}
+                                        <span class="badge-fallback">🐾 Pet Instinct</span>
+                                    {% endif %}
+                                </div>
+                                {% if item.user_message %}
+                                    <div class="timeline-user-msg">
+                                        <span class="user-label">You:</span> {{ item.user_message }}
+                                    </div>
+                                {% endif %}
+                                <div class="timeline-pet-response">
+                                    <span class="pet-label">{{ pet.name }}:</span> {{ item.pet_response }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <span class="empty-emoji">🐣</span>
+                        <p class="empty-text">No interactions recorded yet. Try feeding, playing, or chatting with {{ pet.name }}!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fillQuickChat(text) {
+    const input = document.getElementById('quick-chat-input');
+    if (input) {
+        input.value = text;
+        input.focus();
+    }
+}
+</script>
+{% endblock %}

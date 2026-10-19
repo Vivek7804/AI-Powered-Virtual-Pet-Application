@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Virtual Pet Studio{% endblock %} | MCA GenAI Lab</title>
+    
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Static Stylesheet -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'pet/css/style.css' %}">
+    
+    <!-- CSRF Token Meta for AJAX -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body>
+    <!-- Top Decorative Glow Orbs -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <a href="{% url 'home' %}" class="brand-logo" id="nav-brand-logo">
+                <span class="brand-icon">🐾</span>
+                <span class="brand-text">PetAI<span class="brand-accent">Studio</span></span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}" id="nav-home-link">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+                <a href="{% url 'chat' %}" class="nav-item {% if request.resolver_match.url_name == 'chat' %}active{% endif %}" id="nav-chat-link">
+                    <span class="nav-icon">💬</span> AI Chat
+                </a>
+                <a href="{% url 'create_pet' %}" class="nav-item {% if request.resolver_match.url_name == 'create_pet' %}active{% endif %}" id="nav-create-link">
+                    <span class="nav-icon">✨</span> Adopt Pet
+                </a>
+                <a href="{% url 'list_pets' %}" class="nav-item {% if request.resolver_match.url_name == 'list_pets' %}active{% endif %}" id="nav-pets-link">
+                    <span class="nav-icon">📋</span> Pet Sanctuary
+                </a>
+            </nav>
+
+            {% if pet %}
+            <div class="header-pet-status" id="header-pet-badge">
+                <span class="header-pet-avatar">{{ pet.pet_emoji }}</span>
+                <div class="header-pet-info">
+                    <span class="header-pet-name">{{ pet.name }}</span>
+                    <span class="header-pet-mood mood-pill {{ pet.mood_badge_class }}">
+                        {{ pet.mood_emoji }} {{ pet.mood }}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Global Alert / Messages Container -->
+    <div class="messages-container" id="system-messages-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} fade-in" role="alert">
+                    <span class="alert-icon">
+                        {% if message.tags == 'success' %}🎉{% elif message.tags == 'error' %}⚠️{% else %}💡{% endif %}
+                    </span>
+                    <span class="alert-text">{{ message }}</span>
+                    <button type="button" class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p class="footer-title">AI-Powered Virtual Pet Web Application</p>
+            <p class="footer-subtitle">MCA Semester III &bull; Generative Artificial Intelligence Lab &bull; Django & SQLite</p>
+            <div class="footer-badges">
+                <span class="tech-tag">🐍 Python 3.11</span>
+                <span class="tech-tag">⚡ Django 5</span>
+                <span class="tech-tag">🗄️ SQLite ORM</span>
+                <span class="tech-tag">🤖 Google Gemini / Fallback Engine</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Client Script -->
+    <script src="{% static 'pet/js/script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

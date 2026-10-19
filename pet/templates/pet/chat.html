@@ -1,0 +1,142 @@
+{% extends 'pet/base.html' %}
+{% load static %}
+
+{% block title %}Chat with {{ pet.name }}{% endblock %}
+
+{% block content %}
+<div class="chat-page-container">
+    <div class="chat-window-card glass-panel" id="chat-window-card">
+        <!-- Chat Header Bar -->
+        <div class="chat-header-bar">
+            <div class="chat-header-pet-profile">
+                <div class="chat-avatar-wrapper">
+                    <span class="chat-avatar-emoji">{{ pet.pet_emoji }}</span>
+                    <span class="online-indicator" title="Online & Attentive"></span>
+                </div>
+                <div class="chat-header-details">
+                    <div class="name-row">
+                        <h1 class="chat-pet-name">{{ pet.name }}</h1>
+                        <span class="chat-personality-tag">{{ pet.personality }}</span>
+                    </div>
+                    <div class="chat-status-row">
+                        <span class="mood-pill {{ pet.mood_badge_class }}">
+                            {{ pet.mood_emoji }} {{ pet.mood }}
+                        </span>
+                        <span class="chat-status-text">
+                            Hunger: {{ pet.hunger }}% &bull; Energy: {{ pet.energy }}% &bull; Happiness: {{ pet.happiness }}%
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-header-actions">
+                <a href="{% url 'home' %}" class="btn-chat-nav" title="Back to Dashboard">
+                    <span>🏠</span> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Chat Conversation Messages Thread -->
+        <div class="chat-messages-viewport" id="chat-messages-container">
+            <!-- System Greeting Notice -->
+            <div class="chat-system-notice">
+                <span class="system-icon">🤖</span>
+                <span>Conversation encrypted & persisted in SQLite database. System Prompt active.</span>
+            </div>
+
+            {% for msg in chat_messages %}
+                <!-- User Message Bubble -->
+                {% if msg.user_message %}
+                <div class="chat-bubble-row user-row">
+                    <div class="chat-bubble user-bubble">
+                        <div class="bubble-header">
+                            <span class="bubble-sender">You</span>
+                            <span class="bubble-time">{{ msg.created_at|date:"H:i" }}</span>
+                        </div>
+                        <p class="bubble-text">{{ msg.user_message }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Pet Response Bubble -->
+                <div class="chat-bubble-row pet-row">
+                    <div class="bubble-avatar-col">
+                        <span class="bubble-pet-avatar">{{ pet.pet_emoji }}</span>
+                    </div>
+                    <div class="chat-bubble pet-bubble">
+                        <div class="bubble-header">
+                            <span class="bubble-sender">{{ pet.name }}</span>
+                            <div class="bubble-meta-tags">
+                                <span class="bubble-time">{{ msg.created_at|date:"H:i" }}</span>
+                                {% if msg.is_ai_generated %}
+                                    <span class="tag-ai-badge">✨ AI Generated</span>
+                                {% else %}
+                                    <span class="tag-fallback-badge">🐾 Pet Instinct</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="bubble-text">{{ msg.pet_response }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="chat-empty-state" id="chat-empty-state">
+                    <span class="empty-icon">💬</span>
+                    <h3>Start a Conversation with {{ pet.name }}!</h3>
+                    <p>Ask how they feel, what they'd like to eat, or if they want to play!</p>
+                </div>
+            {% endfor %}
+            <div id="scroll-anchor"></div>
+        </div>
+
+        <!-- Quick Prompts Toolbar -->
+        <div class="chat-suggestions-tray">
+            <span class="suggestion-label">Suggestions:</span>
+            <button type="button" class="suggestion-chip" onclick="sendSuggestion('Hello! How are you?')">👋 "Hello!"</button>
+            <button type="button" class="suggestion-chip" onclick="sendSuggestion('Are you hungry?')">🍖 "Are you hungry?"</button>
+            <button type="button" class="suggestion-chip" onclick="sendSuggestion('Are you happy?')">❤️ "Are you happy?"</button>
+            <button type="button" class="suggestion-chip" onclick="sendSuggestion('Do you want to play?')">🎾 "Wanna play?"</button>
+            <button type="button" class="suggestion-chip" onclick="sendSuggestion('What do you want to eat?')">🍕 "What to eat?"</button>
+            <button type="button" class="suggestion-chip" onclick="sendSuggestion('Tell me a funny joke!')">😄 "Tell a joke"</button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <div class="chat-input-bar">
+            <form action="{% url 'chat' %}" method="POST" class="chat-submit-form" id="chat-form">
+                {% csrf_token %}
+                <div class="input-controls-wrapper">
+                    {{ chat_form.message }}
+                    <button type="submit" class="chat-send-button" id="chat-send-btn">
+                        <span class="send-text">Send</span>
+                        <span class="send-icon">🚀</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sendSuggestion(text) {
+    const input = document.getElementById('chat-user-message-input');
+    if (input) {
+        input.value = text;
+        const form = document.getElementById('chat-form');
+        if (form) form.submit();
+    }
+}
+
+// Auto-scroll to bottom of chat
+function scrollToBottom() {
+    const container = document.getElementById('chat-messages-container');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    scrollToBottom();
+});
+</script>
+{% endblock %}
